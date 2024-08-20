@@ -3,18 +3,56 @@ from unittest.mock import patch
 from decimal import Decimal
 from faker import Faker
 from session8 import fake, time_the_fun, generate_fake_profiles_and_stats_tuple, person_profile, generate_fake_profiles_and_stats_dict
+from session8 import generate_companies, CompanyStock
 import session8
 import inspect
 import re
+import os
 
-def test_indentations():
-    ''' Returns pass if used four spaces for each level of syntactically \
-    significant indenting.'''
-    lines = inspect.getsource(session8)
-    spaces = re.findall('\n +.', lines)
-    for space in spaces:
-        assert len(space) % 4 == 2, "Your script contains misplaced indentations"
-        assert len(re.sub(r'[^ ]', '', space)) % 4 == 0, "Your code indentation does not follow PEP8 guidelines"
+def test_readme_exists():
+    '''
+    To check if ReadMe exists
+    '''
+    assert os.path.isfile("README.md"), "README.md file missing!"
+
+README_CONTENT_CHECK_FOR = [
+        "decorator",
+        "faker",
+        "namedtuple",
+        "stock"
+        ]
+
+def test_readme_contents():
+    '''
+    To check if ReadMe includes important "Keywords"
+    '''
+    readme = open("README.md", "r")
+    readme_words = readme.read().split()
+    readme.close()
+    assert len(readme_words) >= 100, "Make your README.md file interesting! Add atleast 500 words"
+
+def test_readme_proper_description():
+    '''
+    To check if author has provided sufficient description
+    '''
+    READMELOOKSGOOD = True
+    f = open("README.md", "r", encoding="utf-8")
+    content = f.read()
+    f.close()
+    for c in README_CONTENT_CHECK_FOR:
+        if c not in content:
+            READMELOOKSGOOD = False
+            pass
+    assert READMELOOKSGOOD == True, "You have not described all the functions/class well in your README.md file"
+
+def test_readme_file_for_formatting():
+    '''
+    To check if author has used Markdown editing format or not
+    '''
+    f = open("README.md", "r", encoding="utf-8")
+    content = f.read()
+    f.close()
+    assert content.count("#") >= 10
 
 # Test the BloodGroupProvider
 def test_blood_group_provider():
@@ -143,6 +181,39 @@ def test_generate_fake_profiles_and_stats_execution_time(mock_print):
     time_taken_str = last_print_call.split("is")[1].strip()
     time_taken = float(time_taken_str)
     assert time_taken < 0.3, "Execution time should be greater than zero."
+
+def test_generate_companies_length():
+    companies, total_weight = generate_companies(100)
+    assert len(companies) == 100, "The number of generated companies should be 100."
+
+def test_generate_companies_total_weight():
+    companies, total_weight = generate_companies(100)
+    assert total_weight > 0, "The total weight should be greater than 0."
+
+def test_generate_companies_attributes():
+    companies, _ = generate_companies(100)
+    assert all(isinstance(company, CompanyStock) for company in companies), \
+        "All items should be instances of CompanyStock namedtuple."
+    assert all(hasattr(company, 'name') for company in companies), \
+        "Each company should have a 'name' attribute."
+    assert all(hasattr(company, 'symbol') for company in companies), \
+        "Each company should have a 'symbol' attribute."
+    assert all(hasattr(company, 'open') for company in companies), \
+        "Each company should have an 'open' attribute."
+    assert all(hasattr(company, 'high') for company in companies), \
+        "Each company should have a 'high' attribute."
+    assert all(hasattr(company, 'close') for company in companies), \
+        "Each company should have a 'close' attribute."
+    assert all(hasattr(company, 'weight') for company in companies), \
+        "Each company should have a 'weight' attribute."
+
+def test_generate_companies_stock_price_relation():
+    companies, _ = generate_companies(100)
+    for company in companies:
+        assert company.open <= company.high, \
+            "The 'high' price should be greater than or equal to the 'open' price."
+        assert company.open <= company.close <= company.high, \
+            "The 'close' price should be between 'open' and 'high' prices."
 
 
 if 0:

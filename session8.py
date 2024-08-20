@@ -211,20 +211,21 @@ def generate_companies(num_companies=100):
         # Generate company name and symbol
         name = fake.company()
         symbol = ''.join(random.sample(name, 4)).upper()  # Create a 4-letter symbol from the company name
-        
+
         # Generate random stock prices
         open_price = round(random.uniform(100, 500), 2)  # Random open price between 100 and 500
         high_price = round(open_price + random.uniform(0, 50), 2)  # High price must be higher than open price
         close_price = round(random.uniform(open_price, high_price), 2)  # Close price between open and high
-        
+
         # Assign a random weight
         weight = random.uniform(0.5, 2.0)
         total_weight += weight
-        
+
         # Append company data to the list
         companies.append(CompanyStock(name, symbol, open_price, high_price, close_price, weight))
 
     return companies, total_weight
+
 
 # Calculate the stock market values
 def calculate_stock_market_value(companies, total_weight):
@@ -243,6 +244,7 @@ def calculate_stock_market_value(companies, total_weight):
     high_market_value = sum(company.high * company.weight for company in companies) / total_weight
     close_market_value = sum(company.close * company.weight for company in companies) / total_weight
     return open_market_value, high_market_value, close_market_value
+
 
 # Generate the companies and calculate the market values
 companies, total_weight = generate_companies(100)
